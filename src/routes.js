@@ -9,7 +9,13 @@ export const routes = [
     method: 'GET',
     path: buildRoutePath('/tasks'),
     handler: (req, res) => {
-      const tasks = database.select('tasks');
+      const { search } = req.query;
+
+      const tasks = search !== undefined ? database.select('tasks', {
+        title: search,
+        description: search
+      }) : database.select('tasks');
+
 
       return res.writeHead(200).end(JSON.stringify(tasks));
     }
