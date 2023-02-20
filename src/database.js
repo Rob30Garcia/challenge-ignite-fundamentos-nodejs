@@ -21,10 +21,6 @@ export class Database {
 
     if(search) {
       data = data.filter(row => {
-<<<<<<< HEAD
-=======
-        console.log(row);
->>>>>>> 2c022fafcf043b5ca87639d91ee0cc0c9fec4df3
         return Object.entries(search).some(([key, value]) => {
           return row[key].includes(value);
         }) ;
