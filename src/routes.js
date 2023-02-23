@@ -26,6 +26,13 @@ export const routes = [
     handler: (req, res) => {
       const { title, description } = req.body
 
+      if (!title || !description) {
+        return res.writeHead(404)
+          .end(JSON.stringify({
+            message: 'title and description are required'
+          }))
+      }
+
       const task = {
         id: randomUUID(),
         title,
@@ -47,6 +54,21 @@ export const routes = [
       const { id } = req.params;
       const data = req.body;
 
+      if (!data) {
+        return res.writeHead(404)
+          .end(JSON.stringify({
+            message: 'title or description are required'
+          }))
+      }
+
+      const [task] = database.select('tasks', { id })
+
+      if (!task) {
+        return res.writeHead(404).end(JSON.stringify({
+          message: "Task not found."
+        }));
+      }
+
       database.update('tasks', id, {
         ...data,
         updated_at: new Date().toString(),
@@ -61,9 +83,20 @@ export const routes = [
     handler: (req, res) => {
       const { id } = req.params;
 
+      const [task] = database.select('tasks', { id })
+
+      if (!task) {
+        return res.writeHead(404).end(JSON.stringify({
+          message: "Task not found."
+        }));
+      }
+
+      const isCompletedTask = task.completed_at === null ? 
+        new Date().toString() : task.completed_at;
+
       database.update('tasks', id, {
         updated_at: new Date().toString(),
-        completed_at: new Date().toString()
+        completed_at: isCompletedTask
       });
 
       return res.writeHead(204).end();
@@ -74,6 +107,14 @@ export const routes = [
     path: buildRoutePath('/tasks/:id'), 
     handler: (req, res) => {
       const { id } = req.params;
+
+      const [task] = database.select('tasks', { id })
+
+      if (!task) {
+        return res.writeHead(404).end(JSON.stringify({
+          message: "Task not found."
+        }));
+      }
 
       database.delete('tasks', id);
 
